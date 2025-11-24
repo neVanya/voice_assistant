@@ -91,7 +91,7 @@ class ClipboardSkill(BaseSkill):
                 # Упрощенная логика извлечения текста
                 words = command_lower.split()
                 if len(words) > 1:
-                    text_to_copy = " ".join(words[1:])
+                    text_to_copy = " ".join(words[3:])
                     pyperclip.copy(text_to_copy)
                     response = f"Скопировал в буфер обмена: {text_to_copy}"
                 else:

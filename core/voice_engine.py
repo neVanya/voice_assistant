@@ -180,8 +180,8 @@ class VoiceEngine:
             with self.microphone as source:
                 audio = self.recognizer.listen(
                     source,
-                    timeout=3,  # ⬅️ Уменьшили с 8 до 3 секунд
-                    phrase_time_limit=4  # ⬅️ Уменьшили с 5 до 4 секунд
+                    timeout=7,
+                    phrase_time_limit=4
                 )
 
             text = self.recognizer.recognize_google(audio, language='ru-RU')
