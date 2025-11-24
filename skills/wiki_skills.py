@@ -36,13 +36,14 @@ class WikipediaSkill(BaseSkill):
             # Берем первую найденную страницу
             page_title = search_results[0]
 
-            # Получаем краткое содержание
-            summary = wikipedia.summary(page_title, sentences=2)
+            # УВЕЛИЧИВАЕМ КОЛИЧЕСТВО ПРЕДЛОЖЕНИЙ ДО 4-5
+            summary = wikipedia.summary(page_title, sentences=5)
 
             # Очищаем текст
             summary = self._clean_text(summary)
 
-            response = f"Вот что я нашел о '{page_title}': {summary}"
+            # Форматируем ответ для лучшей читаемости
+            response = f"📚 Вот что я нашел о '{page_title}':\n\n{summary}"
             return response
 
         except wikipedia.exceptions.DisambiguationError as e:
@@ -76,8 +77,8 @@ class WikipediaSkill(BaseSkill):
         """Очищает текст от HTML-тегов и лишних символов"""
         # Удаляем HTML-теги
         text = re.sub(r'<[^>]+>', '', text)
-        # Удаляем текст в скобках
-        text = re.sub(r'\([^)]*\)', '', text)
+        # Удаляем текст в скобках (но оставляем основные)
+        text = re.sub(r'\[.*?\]', '', text)  # удаляем квадратные скобки
         # Убираем лишние пробелы
         text = re.sub(r'\s+', ' ', text)
         return text.strip()
@@ -93,17 +94,20 @@ class RandomArticleSkill(BaseSkill):
     def get_keywords(self):
         return [
             "случайная статья", "рандомная статья", "что-нибудь интересное",
-            "расскажи что-то новое", "интересный факт"
+            "расскажи что-то новое", "интересный факт", "удиви меня",
+            "что почитать", "открой что-то новое"
         ]
 
     def execute(self, command: str, memory):
         try:
             random_title = wikipedia.random()
-            summary = wikipedia.summary(random_title, sentences=1)
+            # УВЕЛИЧИВАЕМ ДО 3-4 ПРЕДЛОЖЕНИЙ ДЛЯ СЛУЧАЙНЫХ СТАТЕЙ
+            summary = wikipedia.summary(random_title, sentences=4)
 
             summary = self._clean_text(summary)
 
-            response = f"Случайная статья: '{random_title}'. {summary}"
+            # Более информативный формат ответа
+            response = f"🔍 Случайная статья: '{random_title}'\n\n{summary}"
             return response
 
         except Exception as e:
@@ -113,6 +117,78 @@ class RandomArticleSkill(BaseSkill):
     def _clean_text(self, text: str) -> str:
         """Очищает текст от HTML-тегов и лишних символов"""
         text = re.sub(r'<[^>]+>', '', text)
-        text = re.sub(r'\([^)]*\)', '', text)
+        text = re.sub(r'\[.*?\]', '', text)
+        text = re.sub(r'\s+', ' ', text)
+        return text.strip()
+
+
+class DetailedArticleSkill(BaseSkill):
+    """Навык для получения подробных статей"""
+
+    def __init__(self):
+        super().__init__("Подробная статья")
+        wikipedia.set_lang("ru")
+
+    def get_keywords(self):
+        return [
+            "подробно о", "расскажи подробнее", "детальная информация",
+            "полная статья", "больше информации о", "развернутый ответ"
+        ]
+
+    def execute(self, command: str, memory):
+        try:
+            # Очищаем запрос
+            clean_query = self._extract_query(command)
+
+            if not clean_query:
+                return "О ком или о чем вы хотите получить подробную информацию?"
+
+            # Ищем страницу
+            search_results = wikipedia.search(clean_query)
+            if not search_results:
+                return f"По запросу '{clean_query}' ничего не найдено."
+
+            page_title = search_results[0]
+
+            # ПОЛУЧАЕМ ПОЛНУЮ СТАТЬЮ ИЛИ ОЧЕНЬ ДЛИННОЕ ОПИСАНИЕ
+            try:
+                # Пробуем получить полную страницу
+                page = wikipedia.page(page_title)
+                content = page.content
+
+                # Берем первые 800 символов (примерно 6-8 предложений)
+                if len(content) > 800:
+                    summary = content[:800] + "..."
+                else:
+                    summary = content
+
+            except:
+                # Если не получилось, берем длинное описание
+                summary = wikipedia.summary(page_title, sentences=8)
+
+            summary = self._clean_text(summary)
+
+            response = f"📖 Подробная информация о '{page_title}':\n\n{summary}"
+            return response
+
+        except Exception as e:
+            logger.error(f"Ошибка получения подробной статьи: {e}")
+            return "Не удалось получить подробную информацию. Попробуйте другой запрос."
+
+    def _extract_query(self, command: str) -> str:
+        """Извлекает запрос из команды"""
+        keywords = ["подробно о", "расскажи подробнее", "детальная информация",
+                    "полная статья", "больше информации о", "развернутый ответ"]
+
+        clean_query = command.lower()
+        for keyword in keywords:
+            clean_query = clean_query.replace(keyword, "")
+
+        return clean_query.strip()
+
+    def _clean_text(self, text: str) -> str:
+        """Очищает текст"""
+        text = re.sub(r'==.*?==', '', text)  # удаляем заголовки
+        text = re.sub(r'\[.*?\]', '', text)  # удаляем ссылки
         text = re.sub(r'\s+', ' ', text)
         return text.strip()

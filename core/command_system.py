@@ -4,7 +4,6 @@ from utils.news_service import news_service
 from core.game_engine import game_engine
 from core.smart_parser import smart_parser
 from typing import Dict, Any
-from core.plugin_system import plugin_system
 
 logger = logging.getLogger('VoiceAssistant')
 
@@ -17,10 +16,8 @@ class CommandSystem:
         self.skills = get_all_skills()
         self._setup_special_commands()
 
-        plugin_system.load_plugins()
 
         logger.info(f"Загружено {len(self.skills)} навыков")
-        logger.info(f"Загружено {len(plugin_system.plugins)} плагинов")
 
     def process_command(self, text: str) -> str:
         """Обрабатывает команду и возвращает ответ"""
@@ -36,9 +33,6 @@ class CommandSystem:
         if special_response:
             return special_response
 
-        plugin_response = plugin_system.execute_command(text, self.memory)
-        if plugin_response:
-            return plugin_response
 
         # 2. 🔥 НОВОЕ: Используем умный парсинг для поиска навыков
         smart_match = self._smart_find_skill(text_lower)
@@ -286,8 +280,4 @@ class CommandSystem:
                 "keywords": ["новости", "что нового", "свежие новости", "последние новости"],
                 "handler": self._handle_news
             },
-            "plugins": {  # ⬅️ НОВАЯ КОМАНДА
-                "keywords": ["плагины", "список плагинов", "перезагрузить плагины"],
-                "handler": self._handle_plugins
-            }
         }
