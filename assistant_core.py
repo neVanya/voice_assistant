@@ -45,7 +45,7 @@ class VoiceAssistant:
 
         # Приветственное сообщение с озвучкой
         welcome_text = "Голосовой ассистент запущен! Скажите 'помощь' для списка команд."
-        print(f"🤖 {welcome_text}")
+        #print(f"🤖 {welcome_text}")
         self.voice_engine.speak(welcome_text)
 
         try:
@@ -68,7 +68,7 @@ class VoiceAssistant:
 
                 # Выводим и озвучиваем ответ (ТОЛЬКО ЗДЕСЬ)
                 if response and response != "STOP":
-                    print(f"🤖 Ассистент: {response}")
+                    #print(f"🤖 Ассистент: {response}")
 
                     # Озвучиваем только если это не команда помощи
                     if not response.startswith("Я вывел список"):
@@ -132,7 +132,7 @@ class VoiceAssistant:
         """Корректное завершение работы"""
         logger.info("Завершение работы ассистента")
         goodbye_text = "До свидания! Буду рад помочь снова!"
-        print(f"👋 {goodbye_text}")
+        #print(f"👋 {goodbye_text}")
         self.voice_engine.speak(goodbye_text)
         self.voice_engine.stop()
 
@@ -144,7 +144,7 @@ class VoiceAssistant:
         if command:
             response = self.command_system.process_command(command)
             if response and response != "STOP":
-                print(f"🤖 {response}")
+                #print(f"🤖 {response}")
                 # Озвучиваем и для однократного режима
                 if not response.startswith("Я вывел список"):
                     self.voice_engine.speak(response)
