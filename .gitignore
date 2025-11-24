@@ -1,3 +1,8 @@
+# Log files
+*.log
+logs/
+assistant.log
+
 # Python
 __pycache__/
 *.py[cod]

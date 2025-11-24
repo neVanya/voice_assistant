@@ -86,8 +86,8 @@ class VoiceEngine:
 
             # Генерируем аудио
             engine = pyttsx3.init()
-            engine.setProperty('rate', 200)
-            engine.setProperty('volume', 1.0)
+            engine.setProperty('rate', VOICE_RATE)
+            engine.setProperty('volume', VOICE_VOLUME)
             engine.save_to_file(text, temp_filename)
             engine.runAndWait()
 
@@ -131,8 +131,8 @@ class VoiceEngine:
 
             # Генерируем аудио
             engine = pyttsx3.init()
-            engine.setProperty('rate', 260)
-            engine.setProperty('volume', 1.0)
+            engine.setProperty('rate', VOICE_RATE)
+            engine.setProperty('volume', VOICE_VOLUME)
             engine.save_to_file(text, temp_filename)
             engine.runAndWait()
 
